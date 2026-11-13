@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Loader Component Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =============================================================
+       PAGE STYLES (For Preview Showcase)
+       ============================================================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #08090D;
+      color: #ECEEF2;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    .preview-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .preview-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+    }
+
+    .preview-sub {
+      font-size: 13px;
+      color: #8E92A2;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Grid of Real-World Loader Use Cases */
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .showcase-card {
+      background: rgba(16, 18, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      position: relative;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-label {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #6C7082;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-text {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #8E92A2;
+      letter-spacing: 0.04em;
+    }
+
+    /* Sample Button with inline micro loader */
+    .preview-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: #181B26;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* =============================================================
+       THE ORBITAL LOADER COMPONENT (Self-contained, Copy-Pasteable)
+       ============================================================= */
+
+    /* 
+       CSS Variables on .orbital-loader control all sizes and colors:
+       --ol-size: total container diameter (e.g. 56px)
+       --ol-dot: circle dot size (e.g. 10px)
+       --ol-dist: distance from center to outer slots (e.g. 20px)
+    */
+    .orbital-loader {
+      --ol-size: 64px;
+      --ol-dot: 10px;
+      --ol-dist: 22px;
+      --ol-color-a: #D8D4F8; /* Soft Lavender */
+      --ol-color-b: #FBF8ED; /* Soft Ivory */
+      --ol-color-c: #C7F3E3; /* Frosted Mint */
+      --ol-glow: rgba(255, 255, 255, 0.45);
+
+      position: relative;
+      width: var(--ol-size);
+      height: var(--ol-size);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Size variants */
+    .orbital-loader.size-sm {
+      --ol-size: 40px;
+      --ol-dot: 7px;
+      --ol-dist: 14px;
+    }
+
+    .orbital-loader.size-md {
+      --ol-size: 64px;
+      --ol-dot: 10px;
+      --ol-dist: 22px;
+    }
+
+    .orbital-loader.size-lg {
+      --ol-size: 96px;
+      --ol-dot: 14px;
+      --ol-dist: 34px;
+    }
+
+    /* Optional faint outer boundary ring */
+    .orbital-loader .ol-outer-ring {
+      position: absolute;
+      width: calc(var(--ol-dist) * 2);
+      height: calc(var(--ol-dist) * 2);
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Center Anchor (0, 0) */
+    .orbital-loader .ol-stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+    }
+
+    /* The 3 Dots */
+    .orbital-loader .ol-dot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--ol-dot);
+      height: var(--ol-dot);
+      border-radius: 50%;
+      will-change: transform;
+      box-shadow: 0 0 10px var(--ol-glow);
+    }
+
+    .orbital-loader .ol-dot-a {
+      background: var(--ol-color-a);
+      box-shadow: 0 0 10px rgba(216, 212, 248, 0.6);
+    }
+
+    .orbital-loader .ol-dot-b {
+      background: var(--ol-color-b);
+      box-shadow: 0 0 10px rgba(251, 248, 237, 0.6);
+    }
+
+    .orbital-loader .ol-dot-c {
+      background: var(--ol-color-c);
+      box-shadow: 0 0 10px rgba(199, 243, 227, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="preview-header">
+    <h1 class="preview-title">Orbital Loader Component</h1>
+    <p class="preview-sub">Miniaturized Compound 2D Kinetic Spinner</p>
+  </header>
+
+  <div class="showcase-grid">
+
+    <!-- Card 1: Default Medium Loader (64px) -->
+    <div class="showcase-card">
+      <span class="card-label">Default (64px)</span>
+      <div class="orbital-loader size-md" data-orbital-loader data-speed="1.2">
+        <div class="ol-outer-ring"></div>
+        <div class="ol-stage">
+          <div class="ol-dot ol-dot-a"></div>
+          <div class="ol-dot ol-dot-b"></div>
+          <div class="ol-dot ol-dot-c"></div>
+        </div>
+      </div>
+      <span class="card-text">Loading application...</span>
+    </div>
+
+    <!-- Card 2: Minimalist (Ringless, pure dots) -->
+    <div class="showcase-card">
+      <span class="card-label">Pure Minimalist (Clean)</span>
+      <div class="orbital-loader size-md" data-orbital-loader data-speed="1.0">
+        <div class="ol-stage">
+          <div class="ol-dot ol-dot-a"></div>
+          <div class="ol-dot ol-dot-b"></div>
+          <div class="ol-dot ol-dot-c"></div>
+        </div>
+      </div>
+      <span class="card-text">Authenticating session...</span>
+    </div>
+
+    <!-- Card 3: Compact Small (40px) inside Button -->
+    <div class="showcase-card">
+      <span class="card-label">Button / Micro State (40px)</span>
+      <button class="preview-btn">
+        <div class="orbital-loader size-sm" data-orbital-loader data-speed="1.3">
+          <div class="ol-stage">
+            <div class="ol-dot ol-dot-a"></div>
+            <div class="ol-dot ol-dot-b"></div>
+            <div class="ol-dot ol-dot-c"></div>
+          </div>
+        </div>
+        <span>Uploading files...</span>
+      </button>
+      <span class="card-text">Embedded in UI controls</span>
+    </div>
+
+    <!-- Card 4: Large Featured Spinner (96px) -->
+    <div class="showcase-card">
+      <span class="card-label">Large Splash (96px)</span>
+      <div class="orbital-loader size-lg" data-orbital-loader data-speed="1.1">
+        <div class="ol-outer-ring"></div>
+        <div class="ol-stage">
+          <div class="ol-dot ol-dot-a"></div>
+          <div class="ol-dot ol-dot-b"></div>
+          <div class="ol-dot ol-dot-c"></div>
+        </div>
+      </div>
+      <span class="card-text">Synchronizing workspace</span>
+    </div>
+
+  </div>
+
+  <!-- =============================================================
+       ORBITAL LOADER JAVASCRIPT ENGINE (Zero dependencies, drop-in)
+       ============================================================= -->
+  <script>
+    /**
+     * Initializes all elements with [data-orbital-loader]
+     * Automatically reads --ol-dist from computed CSS.
+     * High performance: single shared requestAnimationFrame loop for all instances.
+     */
+    (function initOrbitalLoaders() {
+      'use strict';
+
+      const loaderElements = document.querySelectorAll('[data-orbital-loader]');
+      if (!loaderElements.length) return;
+
+      const instances = Array.from(loaderElements).map(el => {
+        const dotA = el.querySelector('.ol-dot-a');
+        const dotB = el.querySelector('.ol-dot-b');
+        const dotC = el.querySelector('.ol-dot-c');
+        const speed = parseFloat(el.getAttribute('data-speed')) || 1.0;
+
+        // Read distance D from CSS custom property or default to 22
+        const computed = getComputedStyle(el);
+        const distVal = parseFloat(computed.getPropertyValue('--ol-dist')) || 22;
+
+        return {
+          el,
+          dotA,
+          dotB,
+          dotC,
+          speed,
+          D: distVal,
+          R: distVal / 2,
+          slots: ['A', 'B', 'C'],
+          stepIndex: 0,
+          progress: 0.0,
+          globalAngle: 0.0
+        };
+      });
+
+      const BASE_DURATION = 1200; // ms per inner 180° shift at 1.0x
+      let lastTimestamp = performance.now();
+
+      function getStepInfo(step, D, R) {
+        const norm = ((step % 6) + 6) % 6;
+        const isLeft = (norm % 2 === 0);
+        return {
+          pairSlots: isLeft ? [0, 1] : [1, 2],
+          stationarySlot: isLeft ? 2 : 0,
+          midX: isLeft ? -R : R,
+          spin: isLeft ? 1 : -1 // A-B Clockwise (+1), A-C Anticlockwise (-1)
+        };
+      }
+
+      function getSlotX(idx, D) {
+        if (idx === 0) return -D;
+        if (idx === 1) return 0;
+        return D;
+      }
+
+      function updateLoader(inst, delta) {
+        const duration = BASE_DURATION / inst.speed;
+
+        // Progress continuous inner shift
+        inst.progress += delta / duration;
+
+        // Smooth continuous 360° global rotation (PI/3 per step)
+        const angularVel = (Math.PI / 3) / duration;
+        inst.globalAngle += angularVel * delta;
+
+        // Instantaneous zero-pause step rollover
+        while (inst.progress >= 1.0) {
+          inst.progress -= 1.0;
+          const info = getStepInfo(inst.stepIndex, inst.D, inst.R);
+          const s0 = info.pairSlots[0];
+          const s1 = info.pairSlots[1];
+          const temp = inst.slots[s0];
+          inst.slots[s0] = inst.slots[s1];
+          inst.slots[s1] = temp;
+          inst.stepIndex = (inst.stepIndex + 1) % 6;
+        }
+
+        // Calculate smooth continuous positions (constant horizontal velocity)
+        const info = getStepInfo(inst.stepIndex, inst.D, inst.R);
+        const p = inst.progress;
+
+        const lx = (info.midX - inst.R) + 2 * inst.R * p;
+        const ly = -info.spin * inst.R * Math.sin(Math.PI * p);
+
+        const rx = (info.midX + inst.R) - 2 * inst.R * p;
+        const ry = -ly;
+
+        const sx = getSlotX(info.stationarySlot, inst.D);
+        const sy = 0;
+
+        // Rotate by global angle around origin (0, 0)
+        const cos = Math.cos(inst.globalAngle);
+        const sin = Math.sin(inst.globalAngle);
+
+        function toG(x, y) {
+          return {
+            x: (x * cos - y * sin).toFixed(2),
+            y: (x * sin + y * cos).toFixed(2)
+          };
+        }
+
+        const posMap = {
+          [inst.slots[info.pairSlots[0]]]: toG(lx, ly),
+          [inst.slots[info.pairSlots[1]]]: toG(rx, ry),
+          [inst.slots[info.stationarySlot]]: toG(sx, sy)
+        };
+
+        // Apply transforms
+        inst.dotA.style.transform = `translate(${posMap.A.x}px, ${posMap.A.y}px) translate(-50%, -50%)`;
+        inst.dotB.style.transform = `translate(${posMap.B.x}px, ${posMap.B.y}px) translate(-50%, -50%)`;
+        inst.dotC.style.transform = `translate(${posMap.C.x}px, ${posMap.C.y}px) translate(-50%, -50%)`;
+      }
+
+      function loop(timestamp) {
+        const delta = Math.min(50, timestamp - lastTimestamp);
+        lastTimestamp = timestamp;
+
+        for (let i = 0; i < instances.length; i++) {
+          updateLoader(instances[i], delta);
+        }
+
+        requestAnimationFrame(loop);
+      }
+
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

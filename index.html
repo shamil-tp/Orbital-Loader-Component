@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Loader - Pure Minimalist (Clean)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       Pure Minimalist Showcase Theme (Dark / Modern Linear Style)
+       ========================================================================== */
+    :root {
+      --bg: #090A0F;
+      --card-bg: rgba(18, 20, 29, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: rgba(255, 255, 255, 0.16);
+      --text: #F1F3F7;
+      --text-muted: #8E92A4;
+      --text-dim: #55596D;
+      --accent: #D8D4F8;
+      --accent-glow: rgba(216, 212, 248, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px 100px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background lights */
+    .ambient-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(130, 120, 220, 0.12) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1060px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 8px #34D399;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #FFF;
+      margin-bottom: 12px;
+    }
+
+    .tagline {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    /* Interactive Playground Grid */
+    .playground {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 64px;
+    }
+
+    @media (max-width: 860px) {
+      .playground {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--card-border-hover);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Stage */
+    .preview-stage {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+      border-radius: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.06);
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .control-val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Segmented switch buttons */
+    .segmented {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .seg-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Color picker chips */
+    .color-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .chip:hover {
+      transform: scale(1.15);
+    }
+
+    .chip.active {
+      border-color: #FFF;
+      transform: scale(1.15);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Toggle rows */
+    .toggles-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-label input {
+      accent-color: var(--accent);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    /* Code Display Box */
+    .code-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .code-tab-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .code-tab-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #FFF;
+    }
+
+    .code-box {
+      background: #05060A;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #C3E88D;
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #FFF;
+    }
+
+    /* Section Showcase Grid */
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #FFF;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 64px;
+    }
+
+    .mini-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .mini-card:hover {
+      border-color: var(--card-border-hover);
+      transform: translateY(-2px);
+    }
+
+    .mini-card-label {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .mini-card-sub {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Embedded Real UI Demos */
+    .real-ui-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 64px;
+    }
+
+    .ui-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: #141722;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .ui-button:hover {
+      background: #1A1E2C;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Steps guide */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-heading {
+      font-size: 15px;
+      font-weight: 600;
+      color: #FFF;
+      margin-bottom: 4px;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <div class="container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        v2.0.0 • Pure Minimalist (Clean) • Standalone JS
+      </div>
+      <h1>Orbital Loader</h1>
+      <p class="tagline">
+        Ultra-clean compound kinetic and multi-orbit loader. Deployable on Express, GitHub Pages, or CDN. Drop into any page with a single script tag.
+      </p>
+    </header>
+
+    <!-- Interactive Live Playground -->
+    <div class="playground">
+      
+      <!-- Left: Live Render & Code -->
+      <div class="card">
+        <div class="card-title">
+          <span>Live Preview</span>
+          <span id="display-mode" style="color: var(--accent);">Kinetic Mode</span>
+        </div>
+
+        <div class="preview-stage">
+          <!-- The live target where loader mounts -->
+          <div id="live-loader-target"></div>
+        </div>
+
+        <!-- Code Generator Tabs -->
+        <div class="code-tabs">
+          <button class="code-tab-btn active" onclick="switchCodeTab('utility')">HTML Utility Class</button>
+          <button class="code-tab-btn" onclick="switchCodeTab('element')">&lt;orbital-loader&gt;</button>
+          <button class="code-tab-btn" onclick="switchCodeTab('js')">JavaScript API</button>
+        </div>
+
+        <div class="code-box">
+          <button class="copy-btn" id="copy-btn" onclick="copySnippet()">Copy</button>
+          <pre><code id="snippet-code"></code></pre>
+        </div>
+      </div>
+
+      <!-- Right: Interactive Controls -->
+      <div class="card">
+        <div class="card-title">Configuration Controls</div>
+        
+        <div class="controls">
+
+          <!-- Mode Selector -->
+          <div class="control-row">
+            <div class="control-header">
+              <span>Loader Mode</span>
+            </div>
+            <div class="segmented">
+              <button class="seg-btn active" id="btn-mode-kinetic" onclick="setMode('kinetic')">Kinetic Dance</button>
+              <button class="seg-btn" id="btn-mode-rings" onclick="setMode('rings')">Concentric Rings</button>
+              <button class="seg-btn" id="btn-mode-satellite" onclick="setMode('satellite')">Satellite</button>
+            </div>
+          </div>
+
+          <!-- Size Slider -->
+          <div class="control-row">
+            <div class="control-header">
+              <span>Size (Diameter)</span>
+              <span class="control-val" id="val-size">64px</span>
+            </div>
+            <input type="range" id="input-size" min="24" max="144" value="64" step="2" oninput="updateSettings()">
+          </div>
+
+          <!-- Speed Slider -->
+          <div class="control-row">
+            <div class="control-header">
+              <span>Animation Speed</span>
+              <span class="control-val" id="val-speed">1.2x</span>
+            </div>
+            <input type="range" id="input-speed" min="0.3" max="3.0" value="1.2" step="0.1" oninput="updateSettings()">
+          </div>
+
+          <!-- Orbits Slider (for Rings mode) -->
+          <div class="control-row" id="row-orbits">
+            <div class="control-header">
+              <span>Orbit Count (Rings Mode)</span>
+              <span class="control-val" id="val-orbits">3</span>
+            </div>
+            <input type="range" id="input-orbits" min="1" max="5" value="3" step="1" oninput="updateSettings()">
+          </div>
+
+          <!-- Dot Size Slider -->
+          <div class="control-row">
+            <div class="control-header">
+              <span>Dot / Satellite Size</span>
+              <span class="control-val" id="val-dot">Auto (10px)</span>
+            </div>
+            <input type="range" id="input-dot" min="0" max="22" value="0" step="1" oninput="updateSettings()">
+          </div>
+
+          <!-- Color Presets -->
+          <div class="control-row">
+            <div class="control-header">
+              <span>Color Palette</span>
+              <span class="control-val" id="val-palette">Minimalist</span>
+            </div>
+            <div class="color-chips">
+              <div class="chip active" style="background: linear-gradient(135deg, #D8D4F8, #C7F3E3);" onclick="setPalette('minimalist')" title="Minimalist"></div>
+              <div class="chip" style="background: #FFFFFF;" onclick="setPalette('monochrome')" title="Monochrome White"></div>
+              <div class="chip" style="background: linear-gradient(135deg, #38BDF8, #C084FC);" onclick="setPalette('electric')" title="Electric"></div>
+              <div class="chip" style="background: linear-gradient(135deg, #34D399, #A7F3D0);" onclick="setPalette('emerald')" title="Emerald"></div>
+              <div class="chip" style="background: linear-gradient(135deg, #F43F5E, #FBBF24);" onclick="setPalette('sunset')" title="Sunset"></div>
+            </div>
+          </div>
+
+          <!-- Toggles -->
+          <div class="toggles-row">
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-rings" checked onchange="updateSettings()">
+              <span>Orbit Rings</span>
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-dashed" checked onchange="updateSettings()">
+              <span>Dashed Stroke</span>
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-glow" checked onchange="updateSettings()">
+              <span>Soft Glow</span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Ready-to-use Preset Sizes (Declarative HTML Testing) -->
+    <h2 class="section-title">Utility Class Presets</h2>
+    <p class="section-desc">Instantly sized using standard classes without any custom JavaScript.</p>
+    
+    <div class="showcase-grid">
+      <div class="mini-card">
+        <span class="mini-card-label">size-xs (24px)</span>
+        <div class="orbital-loader size-xs"></div>
+        <span class="mini-card-sub">Inline / Micro</span>
+      </div>
+      <div class="mini-card">
+        <span class="mini-card-label">size-sm (36px)</span>
+        <div class="orbital-loader size-sm"></div>
+        <span class="mini-card-sub">Button action</span>
+      </div>
+      <div class="mini-card">
+        <span class="mini-card-label">size-md (56px)</span>
+        <div class="orbital-loader size-md"></div>
+        <span class="mini-card-sub">Standard card</span>
+      </div>
+      <div class="mini-card">
+        <span class="mini-card-label">size-lg (80px)</span>
+        <div class="orbital-loader size-lg"></div>
+        <span class="mini-card-sub">Modal loading</span>
+      </div>
+    </div>
+
+    <!-- Real-world Application Integrations -->
+    <h2 class="section-title">Real-World UI Integrations</h2>
+    <p class="section-desc">Easily fits inside interactive buttons, glassy cards, and dashboards.</p>
+
+    <div class="real-ui-grid">
+      <!-- Button demo -->
+      <div class="mini-card">
+        <span class="mini-card-label">Button State</span>
+        <button class="ui-button">
+          <div class="orbital-loader size-xs" data-color="#FFF" data-speed="1.4"></div>
+          <span>Synchronizing Node...</span>
+        </button>
+      </div>
+
+      <!-- Concentric Rings demo -->
+      <div class="mini-card">
+        <span class="mini-card-label">Concentric 3-Orbit</span>
+        <div class="orbital-loader" data-mode="rings" data-orbits="3" data-size="64" data-color="electric"></div>
+        <span class="mini-card-sub">Multi-stage pipeline</span>
+      </div>
+
+      <!-- Custom Element demo -->
+      <div class="mini-card">
+        <span class="mini-card-label">Custom Element &lt;orbital-loader&gt;</span>
+        <orbital-loader size="60" speed="1.1" mode="satellite" color="monochrome"></orbital-loader>
+        <span class="mini-card-sub">Zero-wrapper Web Component</span>
+      </div>
+    </div>
+
+    <!-- 3-Step Setup & Deployment Guide -->
+    <div class="card" style="margin-bottom: 40px;">
+      <h2 class="section-title" style="margin-bottom: 20px;">Deployment & Integration Guide</h2>
+      <div class="steps-list">
+        
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-heading">Deploy via Express, GitHub Pages, or CDN</div>
+            <div class="step-text">
+              Run <code>node server.js</code> (Express / HTTP with CORS enabled) or push to a GitHub repository and turn on <strong>GitHub Pages</strong> in Settings &gt; Pages.
+            </div>
+            <div class="code-box">
+              <pre><code># Start local server with CORS support
+node server.js
+# Output: Serving on http://localhost:3000/orbital-loader.js</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-heading">Include in Any Webpage</div>
+            <div class="step-text">
+              Add the single script tag to your HTML header or before <code>&lt;/body&gt;</code>. No external CSS stylesheet is required.
+            </div>
+            <div class="code-box">
+              <pre><code>&lt;script src="https://your-domain.com/orbital-loader.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-heading">Call or Declare the Component</div>
+            <div class="step-text">
+              Use utility classes, custom element, or the programmatic JavaScript API:
+            </div>
+            <div class="code-box">
+              <pre><code>&lt;!-- Option A: Utility Class with HTML attributes --&gt;
+&lt;div class="orbital-loader size-md" data-speed="1.2"&gt;&lt;/div&gt;
+
+&lt;!-- Option B: Web Component --&gt;
+&lt;orbital-loader size="64" speed="1.2" mode="kinetic"&gt;&lt;/orbital-loader&gt;
+
+&lt;!-- Option C: JavaScript API --&gt;
+&lt;script&gt;
+  const loader = OrbitalLoader.create('#my-container', { size: 64, speed: 1.2 });
+&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Load the standalone OrbitalLoader library -->
+  <script src="./orbital-loader.js"></script>
+
+  <!-- Interactive Showcase Controller -->
+  <script>
+    let activeLoader = null;
+    let currentMode = 'kinetic';
+    let currentPalette = 'minimalist';
+    let currentCodeTab = 'utility';
+
+    const inputSize = document.getElementById('input-size');
+    const inputSpeed = document.getElementById('input-speed');
+    const inputOrbits = document.getElementById('input-orbits');
+    const inputDot = document.getElementById('input-dot');
+    const toggleRings = document.getElementById('toggle-rings');
+    const toggleDashed = document.getElementById('toggle-dashed');
+    const toggleGlow = document.getElementById('toggle-glow');
+
+    const valSize = document.getElementById('val-size');
+    const valSpeed = document.getElementById('val-speed');
+    const valOrbits = document.getElementById('val-orbits');
+    const valDot = document.getElementById('val-dot');
+    const valPalette = document.getElementById('val-palette');
+    const displayMode = document.getElementById('display-mode');
+    const snippetCode = document.getElementById('snippet-code');
+
+    function initPlayground() {
+      const container = document.getElementById('live-loader-target');
+      activeLoader = OrbitalLoader.create(container, {
+        size: 64,
+        speed: 1.2,
+        mode: 'kinetic',
+        color: currentPalette,
+        rings: true,
+        ringStyle: 'dashed',
+        glow: true
+      });
+      renderSnippet();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.seg-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-mode-${mode}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      displayMode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1) + ' Mode';
+      
+      const orbitsRow = document.getElementById('row-orbits');
+      if (mode === 'rings') {
+        orbitsRow.style.opacity = '1';
+        orbitsRow.style.pointerEvents = 'auto';
+      } else {
+        orbitsRow.style.opacity = '0.4';
+        orbitsRow.style.pointerEvents = 'none';
+      }
+
+      updateSettings();
+    }
+
+    function setPalette(paletteName) {
+      currentPalette = paletteName;
+      valPalette.textContent = paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
+      
+      const chips = document.querySelectorAll('.chip');
+      chips.forEach(c => c.classList.remove('active'));
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+
+      updateSettings();
+    }
+
+    function updateSettings() {
+      const size = parseInt(inputSize.value, 10);
+      const speed = parseFloat(inputSpeed.value);
+      const orbits = parseInt(inputOrbits.value, 10);
+      const dotVal = parseInt(inputDot.value, 10);
+      const dotSize = dotVal > 0 ? dotVal : null;
+      const rings = toggleRings.checked;
+      const ringStyle = toggleDashed.checked ? 'dashed' : 'solid';
+      const glow = toggleGlow.checked;
+
+      valSize.textContent = `${size}px`;
+      valSpeed.textContent = `${speed.toFixed(1)}x`;
+      valOrbits.textContent = orbits;
+      valDot.textContent = dotSize ? `${dotSize}px` : `Auto (${Math.max(4, Math.round(size * 0.15))}px)`;
+
+      if (activeLoader) {
+        activeLoader.update({
+          size,
+          speed,
+          mode: currentMode,
+          color: currentPalette,
+          orbits,
+          dotSize,
+          rings,
+          ringStyle,
+          glow
+        });
+      }
+
+      renderSnippet();
+    }
+
+    function switchCodeTab(tab) {
+      currentCodeTab = tab;
+      document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+      renderSnippet();
+    }
+
+    function renderSnippet() {
+      const size = parseInt(inputSize.value, 10);
+      const speed = parseFloat(inputSpeed.value);
+      const orbits = parseInt(inputOrbits.value, 10);
+      const dotVal = parseInt(inputDot.value, 10);
+      const rings = toggleRings.checked;
+      const ringStyle = toggleDashed.checked ? 'dashed' : 'solid';
+      const glow = toggleGlow.checked;
+
+      let code = '';
+
+      if (currentCodeTab === 'utility') {
+        let attrs = `class="orbital-loader"`;
+        if (size !== 56) attrs += `\n     data-size="${size}"`;
+        if (speed !== 1.0) attrs += `\n     data-speed="${speed}"`;
+        if (currentMode !== 'kinetic') attrs += `\n     data-mode="${currentMode}"`;
+        if (currentMode === 'rings' && orbits !== 3) attrs += `\n     data-orbits="${orbits}"`;
+        if (currentPalette !== 'minimalist') attrs += `\n     data-color="${currentPalette}"`;
+        if (!rings) attrs += `\n     data-rings="false"`;
+        if (ringStyle !== 'dashed') attrs += `\n     data-ring-style="${ringStyle}"`;
+        if (!glow) attrs += `\n     data-glow="false"`;
+        if (dotVal > 0) attrs += `\n     data-dot-size="${dotVal}"`;
+
+        code = `<div ${attrs}>\n</div>`;
+      } else if (currentCodeTab === 'element') {
+        let attrs = `size="${size}" speed="${speed}" mode="${currentMode}"`;
+        if (currentMode === 'rings') attrs += ` orbits="${orbits}"`;
+        if (currentPalette !== 'minimalist') attrs += ` color="${currentPalette}"`;
+        if (!rings) attrs += ` rings="false"`;
+        if (ringStyle !== 'dashed') attrs += ` ring-style="${ringStyle}"`;
+        if (!glow) attrs += ` glow="false"`;
+        if (dotVal > 0) attrs += ` dot-size="${dotVal}"`;
+
+        code = `<orbital-loader ${attrs}></orbital-loader>`;
+      } else if (currentCodeTab === 'js') {
+        code = `// Initialize programmatic loader\nconst loader = OrbitalLoader.create('#container', {\n  size: ${size},\n  speed: ${speed},\n  mode: '${currentMode}',\n  color: '${currentPalette}',\n  orbits: ${orbits},\n  rings: ${rings},\n  ringStyle: '${ringStyle}',\n  glow: ${glow}${dotVal > 0 ? `,\n  dotSize: ${dotVal}` : ''}\n});\n\n// Methods available:\n// loader.setSize(80);\n// loader.setSpeed(1.5);\n// loader.hide();\n// loader.destroy();`;
+      }
+
+      snippetCode.textContent = code;
+    }
+
+    function copySnippet() {
+      const text = snippetCode.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initPlayground);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "orbital-loader",
+  "version": "2.0.0",
+  "description": "Pure Minimalist (Clean) Kinetic and Multi-Orbit Loader Component",
+  "main": "orbital-loader.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "loader",
+    "spinner",
+    "orbital",
+    "minimalist",
+    "web-component",
+    "kinetic",
+    "clean"
+  ],
+  "author": "",
+  "license": "MIT"
+}
