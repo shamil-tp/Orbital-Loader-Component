@@ -1,6 +1,6 @@
 {
   "name": "orbital-loader",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Pure Minimalist (Clean) Kinetic and Multi-Orbit Loader Component",
   "main": "orbital-loader.js",
   "scripts": {

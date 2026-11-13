@@ -1,7 +1,7 @@
 /**
  * OrbitalLoader - Pure Minimalist (Clean) Kinetic & Multi-Orbit Loader Component
  * 
- * Version: 2.1.0 (Pure Ringless Minimalist)
+ * Version: 2.2.0 (Pure Ringless Minimalist & Auto-Mode)
  * Zero dependencies. Self-contained CSS injection.
  * High-performance centralized RequestAnimationFrame engine.
  * Supports HTML utility classes, custom element (<orbital-loader>), and programmatic JS API.
@@ -203,14 +203,22 @@
 
       this.hasExplicitSize = (options.size !== undefined) || (this.container.hasAttribute('size')) || (dataset.size !== undefined);
 
+      // Smart mode resolution: if orbits attribute or option is set, auto-switch mode to 'rings'
+      let resolvedMode = options.mode || elMode;
+      if (!resolvedMode) {
+        resolvedMode = (elOrbits !== undefined && elOrbits !== null) || (options.orbits !== undefined) ? 'rings' : 'kinetic';
+      }
+
+      const parsedOrbits = options.orbits !== undefined ? parseInt(options.orbits, 10) : (elOrbits ? parseInt(elOrbits, 10) : 3);
+
       // Merge options (JS opts override HTML attributes, which override defaults)
       // Pure Minimalist: orbit track rings are permanently disabled
       this.options = {
         size: options.size !== undefined ? options.size : (elSize || null),
-        mode: options.mode || elMode || 'kinetic', // 'kinetic' | 'rings' | 'satellite'
+        mode: resolvedMode, // Auto-selects 'rings' if orbits is set, else 'kinetic'
         speed: options.speed !== undefined ? parseFloat(options.speed) : (elSpeed ? parseFloat(elSpeed) : 1.0),
         color: options.color || (elColor ? elColor : null),
-        orbits: options.orbits !== undefined ? parseInt(options.orbits, 10) : (elOrbits ? parseInt(elOrbits, 10) : 3),
+        orbits: parsedOrbits,
         rings: false, // Orbit track lines permanently disabled
         ringStyle: 'none',
         glow: options.glow !== undefined ? options.glow : (elGlow !== undefined ? (elGlow === 'true' || elGlow === '1') : true),
@@ -281,7 +289,17 @@
       this.numericSize = numSize;
       this.dist = numSize * opts.distRatio;
       this.radius = this.dist / 2;
-      this.dotSize = opts.dotSize ? parseFloat(opts.dotSize) : Math.max(3.5, Math.round(numSize * 0.15));
+
+      // Smart dot sizing
+      if (opts.dotSize) {
+        this.dotSize = parseFloat(opts.dotSize);
+      } else if (opts.mode === 'rings') {
+        const count = Math.max(1, Math.min(6, opts.orbits || 3));
+        const ratio = count >= 5 ? 0.07 : (count >= 3 ? 0.09 : 0.12);
+        this.dotSize = Math.max(3.5, Math.round(numSize * ratio));
+      } else {
+        this.dotSize = Math.max(3.5, Math.round(numSize * 0.15));
+      }
 
       // Explicit width/height on container and SVG for bulletproof layout
       this.container.style.width = sizeVal;
@@ -358,9 +376,7 @@
         // Orbiting satellite dot
         const dot = document.createElement('div');
         dot.className = 'ol-dot';
-        const satSize = this.options.dotSize !== null
-          ? this.dotSize
-          : Math.max(3, Math.round(this.dotSize * (0.75 + (i * 0.15))));
+        const satSize = this.dotSize;
         dot.style.width = `${satSize}px`;
         dot.style.height = `${satSize}px`;
         dot.style.backgroundColor = color;
@@ -608,7 +624,7 @@
    * Static Factory & Automation Manager
    */
   const OrbitalLoader = {
-    version: '2.1.0',
+    version: '2.2.0',
 
     /**
      * Create an OrbitalLoader instance programmatically
