@@ -1,7 +1,7 @@
 /**
  * OrbitalLoader - Pure Minimalist (Clean) Kinetic & Multi-Orbit Loader Component
  * 
- * Version: 2.0.0
+ * Version: 2.1.0 (Pure Ringless Minimalist)
  * Zero dependencies. Self-contained CSS injection.
  * High-performance centralized RequestAnimationFrame engine.
  * Supports HTML utility classes, custom element (<orbital-loader>), and programmatic JS API.
@@ -204,14 +204,15 @@
       this.hasExplicitSize = (options.size !== undefined) || (this.container.hasAttribute('size')) || (dataset.size !== undefined);
 
       // Merge options (JS opts override HTML attributes, which override defaults)
+      // Pure Minimalist: orbit track rings are permanently disabled
       this.options = {
         size: options.size !== undefined ? options.size : (elSize || null),
         mode: options.mode || elMode || 'kinetic', // 'kinetic' | 'rings' | 'satellite'
         speed: options.speed !== undefined ? parseFloat(options.speed) : (elSpeed ? parseFloat(elSpeed) : 1.0),
         color: options.color || (elColor ? elColor : null),
         orbits: options.orbits !== undefined ? parseInt(options.orbits, 10) : (elOrbits ? parseInt(elOrbits, 10) : 3),
-        rings: options.rings !== undefined ? options.rings : (elRings !== undefined ? (elRings === 'true' || elRings === '') : true),
-        ringStyle: options.ringStyle || elRingStyle || 'dashed', // 'dashed' | 'solid'
+        rings: false, // Orbit track lines permanently disabled
+        ringStyle: 'none',
         glow: options.glow !== undefined ? options.glow : (elGlow !== undefined ? (elGlow === 'true' || elGlow === '1') : true),
         glowIntensity: options.glowIntensity !== undefined ? options.glowIntensity : 0.45,
         dotSize: options.dotSize !== undefined ? options.dotSize : (elDotSize ? parseFloat(elDotSize) : null),
@@ -314,24 +315,9 @@
 
     _buildKineticMode() {
       this.stageEl.innerHTML = '';
-      this.svgEl.innerHTML = '';
+      if (this.svgEl) this.svgEl.innerHTML = '';
 
-      // Draw faint boundary ring if enabled
-      if (this.options.rings) {
-        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        const c = this.numericSize / 2;
-        ring.setAttribute('cx', c);
-        ring.setAttribute('cy', c);
-        ring.setAttribute('r', this.dist);
-        ring.setAttribute('fill', 'none');
-        ring.setAttribute('stroke', this.colors[0]);
-        ring.setAttribute('stroke-opacity', '0.14');
-        ring.setAttribute('stroke-width', '1');
-        if (this.options.ringStyle === 'dashed') {
-          ring.setAttribute('stroke-dasharray', '3 4');
-        }
-        this.svgEl.appendChild(ring);
-      }
+      // Pure Minimalist: Never render orbit tracks
 
       // Create the 3 kinetic dots
       this.dots = {};
@@ -357,32 +343,17 @@
 
     _buildRingsMode() {
       this.stageEl.innerHTML = '';
-      this.svgEl.innerHTML = '';
+      if (this.svgEl) this.svgEl.innerHTML = '';
 
       const count = Math.max(1, Math.min(6, this.options.orbits || 3));
       const maxR = this.numericSize * 0.44;
-      const c = this.numericSize / 2;
       this.ringsState = [];
+
+      // Pure Minimalist: Never render orbit tracks
 
       for (let i = 0; i < count; i++) {
         const r = maxR * ((i + 1) / count);
         const color = this.colors[i % this.colors.length];
-
-        // Draw track circle
-        if (this.options.rings) {
-          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          circle.setAttribute('cx', c);
-          circle.setAttribute('cy', c);
-          circle.setAttribute('r', r);
-          circle.setAttribute('fill', 'none');
-          circle.setAttribute('stroke', color);
-          circle.setAttribute('stroke-opacity', (0.10 + (i * 0.03)).toFixed(2));
-          circle.setAttribute('stroke-width', '1');
-          if (this.options.ringStyle === 'dashed') {
-            circle.setAttribute('stroke-dasharray', `${2 + i} ${3 + i}`);
-          }
-          this.svgEl.appendChild(circle);
-        }
 
         // Orbiting satellite dot
         const dot = document.createElement('div');
@@ -418,9 +389,8 @@
 
     _buildSatelliteMode() {
       this.stageEl.innerHTML = '';
-      this.svgEl.innerHTML = '';
+      if (this.svgEl) this.svgEl.innerHTML = '';
 
-      const c = this.numericSize / 2;
       const orbitR = this.numericSize * 0.38;
 
       // Center core nucleus
@@ -435,21 +405,7 @@
       }
       this.stageEl.appendChild(core);
 
-      // Track ring
-      if (this.options.rings) {
-        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        ring.setAttribute('cx', c);
-        ring.setAttribute('cy', c);
-        ring.setAttribute('r', orbitR);
-        ring.setAttribute('fill', 'none');
-        ring.setAttribute('stroke', this.colors[1] || this.colors[0]);
-        ring.setAttribute('stroke-opacity', '0.15');
-        ring.setAttribute('stroke-width', '1');
-        if (this.options.ringStyle === 'dashed') {
-          ring.setAttribute('stroke-dasharray', '3 4');
-        }
-        this.svgEl.appendChild(ring);
-      }
+      // Pure Minimalist: Never render orbit tracks
 
       // Outer satellite
       const sat = document.createElement('div');
@@ -652,7 +608,7 @@
    * Static Factory & Automation Manager
    */
   const OrbitalLoader = {
-    version: '2.0.0',
+    version: '2.1.0',
 
     /**
      * Create an OrbitalLoader instance programmatically
