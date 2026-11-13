@@ -9,6 +9,9 @@
  * License: MIT
  */
 (function (root, factory) {
+  if (root && root.OrbitalLoader) {
+    return; // Already initialized; avoid duplicate instances and loops
+  }
   if (typeof define === 'function' && define.amd) {
     define([], factory);
   } else if (typeof module === 'object' && module.exports) {
@@ -46,7 +49,7 @@
         vertical-align: middle;
         pointer-events: none;
         user-select: none;
-        contain: layout paint;
+        overflow: visible;
       }
 
       /* Preset utility size classes */
@@ -59,7 +62,10 @@
 
       .ol-canvas-wrap {
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -67,7 +73,8 @@
 
       .ol-rings-svg {
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
@@ -275,6 +282,15 @@
       this.radius = this.dist / 2;
       this.dotSize = opts.dotSize ? parseFloat(opts.dotSize) : Math.max(3.5, Math.round(numSize * 0.15));
 
+      // Explicit width/height on container and SVG for bulletproof layout
+      this.container.style.width = sizeVal;
+      this.container.style.height = sizeVal;
+      if (this.svgEl) {
+        this.svgEl.setAttribute('width', this.numericSize);
+        this.svgEl.setAttribute('height', this.numericSize);
+        this.svgEl.setAttribute('viewBox', `0 0 ${this.numericSize} ${this.numericSize}`);
+      }
+
       if (this.hasExplicitSize) {
         this.container.style.setProperty('--ol-dot', `${this.dotSize}px`);
         this.container.style.setProperty('--ol-dist', `${this.dist}px`);
@@ -291,6 +307,9 @@
       } else if (opts.mode === 'satellite') {
         this._buildSatelliteMode();
       }
+
+      // Initial render tick to position dots immediately without FOUC
+      this._update(0);
     }
 
     _buildKineticMode() {
@@ -368,7 +387,9 @@
         // Orbiting satellite dot
         const dot = document.createElement('div');
         dot.className = 'ol-dot';
-        const satSize = Math.max(3, Math.round(this.dotSize * (0.75 + (i * 0.15))));
+        const satSize = this.options.dotSize !== null
+          ? this.dotSize
+          : Math.max(3, Math.round(this.dotSize * (0.75 + (i * 0.15))));
         dot.style.width = `${satSize}px`;
         dot.style.height = `${satSize}px`;
         dot.style.backgroundColor = color;
@@ -719,19 +740,10 @@
 
   // Auto-init on page load and observe DOM for dynamically added loaders
   if (typeof document !== 'undefined') {
-    const runAutoInit = () => {
-      injectStyles();
-      OrbitalLoader.init();
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', runAutoInit);
-    } else {
-      runAutoInit();
-    }
-
-    // Observe future DOM insertions (SPA / React / HTMX / dynamic injection)
-    if (typeof MutationObserver !== 'undefined' && document.body) {
+    let observerAttached = false;
+    const attachObserver = () => {
+      if (observerAttached || typeof MutationObserver === 'undefined' || !document.body) return;
+      observerAttached = true;
       const observer = new MutationObserver((mutations) => {
         for (const mut of mutations) {
           if (mut.addedNodes.length) {
@@ -756,6 +768,18 @@
         }
       });
       observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    const runAutoInit = () => {
+      injectStyles();
+      OrbitalLoader.init();
+      attachObserver();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', runAutoInit);
+    } else {
+      runAutoInit();
     }
   }
 

@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const PUBLIC_DIR = __dirname;
+const PUBLIC_DIR = path.resolve(__dirname);
 
 // MIME types for web assets
 const MIME_TYPES = {
@@ -49,7 +49,8 @@ const server = http.createServer((req, res) => {
     safePath = '/index.html';
   }
 
-  const filePath = path.join(PUBLIC_DIR, safePath);
+  const relativePath = safePath.replace(/^\/+/, '');
+  const filePath = path.resolve(PUBLIC_DIR, relativePath);
 
   // Security: prevent path traversal outside root
   if (!filePath.startsWith(PUBLIC_DIR)) {

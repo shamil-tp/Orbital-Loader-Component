@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbital Loader Test</title>
+
+    <!-- Production script from GitHub Pages CNAME -->
+    <script src="https://orbit.shamiltp.life/orbital-loader.js"></script>
+
+    <style>
+        body {
+            background-color: #090A0F;
+            color: #ECEEF2;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #FFF;
+        }
+
+        p {
+            font-size: 13px;
+            color: #8E92A4;
+            margin-bottom: 36px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .test-card {
+            background: rgba(18, 20, 29, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            position: relative;
+        }
+
+        .card-label {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            font-size: 11px;
+            font-family: monospace;
+            color: #6C7082;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-desc {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #8E92A4;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Orbital Loader Test Suite</h1>
+    <p>Loaded directly via <code>https://orbit.shamiltp.life/orbital-loader.js</code></p>
+
+    <div class="test-grid">
+
+        <!-- Card 1: Kinetic Mode (3-Dot Harmonic Dance) -->
+        <div class="test-card">
+            <span class="card-label">1. Kinetic Dance</span>
+            <div class="orbital-loader"
+                 data-size="144"
+                 data-speed="1.0"
+                 data-color="sunset"
+                 data-dot-size="14">
+            </div>
+            <span class="card-desc">Kinetic swap mode (144px, dot: 14px)</span>
+        </div>
+
+        <!-- Card 2: Custom Web Component with 5 Orbits -->
+        <div class="test-card">
+            <span class="card-label">2. Web Component (5 Orbits)</span>
+            <orbital-loader size="144" speed="1.2" mode="rings" orbits="5" color="sunset" dot-size="8"></orbital-loader>
+            <span class="card-desc">&lt;orbital-loader&gt; (Balanced dot: 8px)</span>
+        </div>
+
+        <!-- Card 3: Concentric Rings via HTML Utility Class -->
+        <div class="test-card">
+            <span class="card-label">3. Utility Class (3 Orbits)</span>
+            <div class="orbital-loader"
+                 data-size="144"
+                 data-speed="1.2"
+                 data-mode="rings"
+                 data-orbits="3"
+                 data-color="sunset"
+                 data-dot-size="14">
+            </div>
+            <span class="card-desc">3 Orbits with larger dots (14px)</span>
+        </div>
+
+        <!-- Card 4: Satellite Nucleus Mode -->
+        <div class="test-card">
+            <span class="card-label">4. Satellite Mode</span>
+            <orbital-loader size="144" speed="1.0" mode="satellite" color="sunset" dot-size="12"></orbital-loader>
+            <span class="card-desc">Pulsing core + satellite orbit</span>
+        </div>
+
+    </div>
+
+</body>
+</html>
